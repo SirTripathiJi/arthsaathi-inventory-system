@@ -6,7 +6,7 @@ ArthSaathi is a browser-based inventory management, billing, and business analyt
 
 This application is deployed using Netlify for fast and reliable hosting.
 
-Live: https://jade-moonbeam-d9fc58.netlify.app/
+Live: https://playful-kulfi-c6f8f9.netlify.app/
 
 ## Overview
 
