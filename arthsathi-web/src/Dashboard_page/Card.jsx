@@ -1,10 +1,10 @@
 import React from 'react';
 
-function Card({ children, className = '' }) {
+function Card(props) {
   return (
-    <div className={`dash-card ${className}`}>
+    <div className={"dash-card " + (props.className || "")}>
       <div className="card-content">
-        {children}
+        {props.children}
       </div>
     </div>
   );

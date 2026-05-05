@@ -8,37 +8,41 @@ export default function Inventory({ inventory, setInventory }) {
     costPrice: '',
     sellPrice: ''
   });
+
   const [editId, setEditId] = useState(null);
 
   const handleSave = (e) => {
     e.preventDefault();
 
-    const item = {
-      id: editId || Date.now(),
+    const newItem = {
+      id: editId ? editId : Date.now(),
       name: formData.name,
-      qty: Number(formData.qty),
+      qty: Math.max(0, Number(formData.qty)),
       costPrice: Number(formData.costPrice),
       sellPrice: Number(formData.sellPrice)
     };
 
-    let updatedList = [];
+    let updatedInventory = [];
 
     if (editId) {
-      updatedList = inventory.map((one) =>
-        one.id === editId ? item : one
-      );
+      updatedInventory = inventory.map((item) => {
+        if (item.id === editId) {
+          return newItem;
+        }
+        return item;
+      });
     } else {
-      updatedList = [...inventory, item];
+      updatedInventory = [...inventory, newItem];
     }
 
-    setInventory(updatedList);
+    setInventory(updatedInventory);
+    setEditId(null);
     setFormData({
       name: '',
       qty: '',
       costPrice: '',
       sellPrice: ''
     });
-    setEditId(null);
   };
 
   const handleEdit = (item) => {
@@ -52,8 +56,11 @@ export default function Inventory({ inventory, setInventory }) {
   };
 
   const handleDelete = (id) => {
-    if (window.confirm('Delete this item?')) {
-      setInventory(inventory.filter((item) => item.id !== id));
+    const confirmDelete = window.confirm('Delete this item?');
+
+    if (confirmDelete) {
+      const newList = inventory.filter((item) => item.id !== id);
+      setInventory(newList);
     }
   };
 
@@ -68,16 +75,21 @@ export default function Inventory({ inventory, setInventory }) {
               className="dash-input"
               placeholder="Name"
               value={formData.name}
-              onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+              onChange={(e) =>
+                setFormData({ ...formData, name: e.target.value })
+              }
               required
             />
 
             <input
               className="dash-input"
               type="number"
+              min="0"
               placeholder="Quantity"
               value={formData.qty}
-              onChange={(e) => setFormData({ ...formData, qty: e.target.value })}
+              onChange={(e) =>
+                setFormData({ ...formData, qty: e.target.value })
+              }
               required
             />
 
@@ -86,7 +98,9 @@ export default function Inventory({ inventory, setInventory }) {
               type="number"
               placeholder="Cost Price (₹)"
               value={formData.costPrice}
-              onChange={(e) => setFormData({ ...formData, costPrice: e.target.value })}
+              onChange={(e) =>
+                setFormData({ ...formData, costPrice: e.target.value })
+              }
               required
             />
 
@@ -95,7 +109,9 @@ export default function Inventory({ inventory, setInventory }) {
               type="number"
               placeholder="Selling Price (₹)"
               value={formData.sellPrice}
-              onChange={(e) => setFormData({ ...formData, sellPrice: e.target.value })}
+              onChange={(e) =>
+                setFormData({ ...formData, sellPrice: e.target.value })
+              }
               required
             />
           </div>
@@ -124,7 +140,17 @@ export default function Inventory({ inventory, setInventory }) {
             {inventory.map((item) => (
               <tr key={item.id}>
                 <td>{item.name}</td>
-                <td>{item.qty}</td>
+                <td>
+                  {item.qty === 0 ? (
+                    <span className="badge-status badge-out">Out of Stock</span>
+                  ) : item.qty <= 5 ? (
+                    <span className="badge-status badge-low">
+                      Low Stock ({item.qty})
+                    </span>
+                  ) : (
+                    item.qty
+                  )}
+                </td>
                 <td>₹{item.costPrice}</td>
                 <td>₹{item.sellPrice}</td>
                 <td>

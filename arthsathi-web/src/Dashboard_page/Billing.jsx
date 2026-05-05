@@ -10,16 +10,32 @@ export default function Billing({ inventory, setInventory, sales, setSales }) {
   const addItem = (e) => {
     e.preventDefault();
 
-    const product = inventory.find(p => p.id == selectedId);
-    if (!product || qty <= 0) return;
+    if (!selectedId || qty <= 0) return;
 
-    const item = {
+    const product = inventory.find(item => item.id == selectedId);
+    if (!product) return;
+
+    const quantity = Number(qty);
+
+    let alreadyAdded = 0;
+    for (let i = 0; i < cart.length; i++) {
+      if (cart[i].id == product.id) {
+        alreadyAdded += cart[i].qty;
+      }
+    }
+
+    if (quantity + alreadyAdded > product.qty) {
+      alert(`Only ${product.qty - alreadyAdded} items left`);
+      return;
+    }
+
+    const newItem = {
       ...product,
-      qty: Number(qty),
-      itemTotal: product.sellPrice * qty
+      qty: quantity,
+      itemTotal: product.sellPrice * quantity
     };
 
-    setCart([...cart, item]);
+    setCart([...cart, newItem]);
     setSelectedId('');
     setQty('');
   };
@@ -29,7 +45,7 @@ export default function Billing({ inventory, setInventory, sales, setSales }) {
 
     let total = 0;
     for (let i = 0; i < cart.length; i++) {
-      total += cart[i].itemTotal;
+      total = total + cart[i].itemTotal;
     }
 
     const newBill = {
@@ -39,25 +55,46 @@ export default function Billing({ inventory, setInventory, sales, setSales }) {
       date: new Date().toLocaleString()
     };
 
-    const updated = inventory.map(p => {
-      const item = cart.find(c => c.id == p.id);
-      if (item) {
-        return { ...p, qty: p.qty - item.qty };
+    const updatedInventory = inventory.map(item => {
+      let soldQty = 0;
+
+      for (let i = 0; i < cart.length; i++) {
+        if (cart[i].id == item.id) {
+          soldQty += cart[i].qty;
+        }
       }
-      return p;
+
+      if (soldQty > 0) {
+        return {
+          ...item,
+          qty: Math.max(0, item.qty - soldQty)
+        };
+      }
+
+      return item;
     });
 
     setSales([newBill, ...sales]);
-    setInventory(updated);
+    setInventory(updatedInventory);
     setBill(newBill);
     setCart([]);
+  };
+
+  const getTotal = () => {
+    let total = 0;
+    for (let i = 0; i < cart.length; i++) {
+      total += cart[i].itemTotal;
+    }
+    return total;
   };
 
   return (
     <div className="dash-section">
       <div className="grid-2col no-print">
+
         <Card>
           <h3>Add Items</h3>
+
           <form className="dash-form" onSubmit={addItem}>
             <select
               className="dash-input"
@@ -65,9 +102,9 @@ export default function Billing({ inventory, setInventory, sales, setSales }) {
               onChange={e => setSelectedId(e.target.value)}
             >
               <option value="">Select Product</option>
-              {inventory.map(p => (
-                <option key={p.id} value={p.id}>
-                  {p.name} - ₹{p.sellPrice} ({p.qty})
+              {inventory.map(item => (
+                <option key={item.id} value={item.id}>
+                  {item.name} - ₹{item.sellPrice} ({item.qty})
                 </option>
               ))}
             </select>
@@ -84,8 +121,8 @@ export default function Billing({ inventory, setInventory, sales, setSales }) {
           </form>
 
           <div className="mt-20">
-            {cart.map((item, i) => (
-              <div key={i} className="billing-item">
+            {cart.map((item, index) => (
+              <div key={index} className="billing-item">
                 <span>{item.name} x {item.qty}</span>
                 <span>₹{item.itemTotal}</span>
               </div>
@@ -95,12 +132,9 @@ export default function Billing({ inventory, setInventory, sales, setSales }) {
 
         <Card>
           <h3>Bill Summary</h3>
+
           <div className="total-display-box mt-20">
-            <h2 className="m-0">
-              Total: ₹{
-                cart.reduce((sum, item) => sum + item.itemTotal, 0)
-              }
-            </h2>
+            <h2 className="m-0">Total: ₹{getTotal()}</h2>
           </div>
 
           <button
@@ -118,8 +152,8 @@ export default function Billing({ inventory, setInventory, sales, setSales }) {
             <h2 className="invoice-header">Invoice</h2>
             <p>{bill.date}</p>
 
-            {bill.items.map((item, i) => (
-              <div key={i} className="invoice-row">
+            {bill.items.map((item, index) => (
+              <div key={index} className="invoice-row">
                 <span>{item.name} x {item.qty}</span>
                 <span>₹{item.itemTotal}</span>
               </div>

@@ -1,11 +1,12 @@
 import React from 'react';
 import './Login.css';
 
-function AuthLayout({ children }) {
+function AuthLayout(props) {
+
   return (
     <div className="auth-layout">
       <div className="auth-container">
-        {children}
+        {props.children}
       </div>
     </div>
   );

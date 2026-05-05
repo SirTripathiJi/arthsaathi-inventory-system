@@ -14,9 +14,9 @@ function Dashboard() {
   const navigate = useNavigate();
 
   const [isAuth, setIsAuth] = useState(false);
-  const [activeTab, setActiveTab] = useState(localStorage.getItem('arth_tab') || 'Overview');
-  const [inventory, setInventory] = useState(getData('arth_inv'));
-  const [sales, setSales] = useState(getData('arth_sales'));
+  const [activeTab, setActiveTab] = useState('Overview');
+  const [inventory, setInventory] = useState([]);
+  const [sales, setSales] = useState([]);
 
   useEffect(() => {
     const user = localStorage.getItem('authUser');
@@ -27,11 +27,22 @@ function Dashboard() {
       setIsAuth(true);
     }
 
-    if (localStorage.getItem('darkMode') === 'true') {
+    const savedTab = localStorage.getItem('arth_tab');
+    if (savedTab) {
+      setActiveTab(savedTab);
+    }
+
+    setInventory(getData('arth_inv'));
+    setSales(getData('arth_sales'));
+
+    const dark = localStorage.getItem('darkMode');
+    if (dark === 'true') {
       document.body.classList.add('dark');
     }
 
-    return () => document.body.classList.remove('dark');
+    return () => {
+      document.body.classList.remove('dark');
+    };
   }, []);
 
   useEffect(() => {
@@ -42,27 +53,41 @@ function Dashboard() {
 
   if (!isAuth) return null;
 
-  let content;
+  let content = <Overview inventory={inventory} sales={sales} />;
 
   if (activeTab === 'Inventory') {
     content = <Inventory inventory={inventory} setInventory={setInventory} />;
-  } 
-  else if (activeTab === 'Billing') {
-    content = <Billing inventory={inventory} setInventory={setInventory} sales={sales} setSales={setSales} />;
-  } 
-  else if (activeTab === 'Transactions') {
+  }
+
+  if (activeTab === 'Billing') {
+    content = (
+      <Billing
+        inventory={inventory}
+        setInventory={setInventory}
+        sales={sales}
+        setSales={setSales}
+      />
+    );
+  }
+
+  if (activeTab === 'Transactions') {
     content = <Transactions sales={sales} setSales={setSales} />;
-  } 
-  else if (activeTab === 'Settings') {
-    content = <Settings setInventory={setInventory} setSales={setSales} setActiveTab={setActiveTab} />;
-  } 
-  else {
-    content = <Overview inventory={inventory} sales={sales} />;
+  }
+
+  if (activeTab === 'Settings') {
+    content = (
+      <Settings
+        setInventory={setInventory}
+        setSales={setSales}
+        setActiveTab={setActiveTab}
+      />
+    );
   }
 
   return (
     <div className="dashboard-layout">
       <Sidebar activeTab={activeTab} setActiveTab={setActiveTab} />
+
       <main className="dashboard-main">
         <Topbar activeTab={activeTab} />
         {content}
