@@ -2,6 +2,12 @@
 
 ArthSaathi is a browser-based inventory management, billing, and business analytics application built for small retail shops. It brings stock tracking, invoice generation, sales history, and performance monitoring into a single clean interface, designed for fast day-to-day operations.
 
+# Live Demo
+
+This application is deployed using Netlify for fast and reliable hosting.
+
+Live: https://jade-moonbeam-d9fc58.netlify.app/
+
 ## Overview
 
 The application is structured around the core workflow of a small shop:
