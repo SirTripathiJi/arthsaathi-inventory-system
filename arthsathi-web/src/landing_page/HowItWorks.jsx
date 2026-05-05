@@ -14,12 +14,14 @@ function HowItWorks() {
       </div>
 
       <div className="steps">
-        {steps.map((step, index) => (
-          <div className="step" key={index}>
-            <div className="step-no">0{index + 1}</div>
-            <p>{step}</p>
-          </div>
-        ))}
+        {steps.map((step, index) => {
+          return (
+            <div className="step" key={index}>
+              <div className="step-no">0{index + 1}</div>
+              <p>{step}</p>
+            </div>
+          );
+        })}
       </div>
     </section>
   );

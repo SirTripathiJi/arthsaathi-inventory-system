@@ -58,15 +58,23 @@ function Features() {
         <h2>Features</h2>
         <p>Everything needed for a small shop inventory project.</p>
       </div>
+
       <div className="features-grid">
-        {features.map((item) => (
-          <div className="card feature-card" key={item.title}>
-            <div className={`feature-icon ${item.colorClass}`}></div>
-            <h3>{item.title}</h3>
-            {item.comingSoon && <span className="coming-soon-label">Coming Soon</span>}
-            <p>{item.text}</p>
-          </div>
-        ))}
+        {features.map((feature) => {
+          return (
+            <div className="card feature-card" key={feature.title}>
+              <div className={`feature-icon ${feature.colorClass}`}></div>
+
+              <h3>{feature.title}</h3>
+
+              {feature.comingSoon ? (
+                <span className="coming-soon-label">Coming Soon</span>
+              ) : null}
+
+              <p>{feature.text}</p>
+            </div>
+          );
+        })}
       </div>
     </section>
   );
